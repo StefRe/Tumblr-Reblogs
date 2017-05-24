@@ -27,7 +27,7 @@ if [ "${jq_version##*.}" -lt 5 ]; then    ## assuming major version being 1
     exit
 fi
 
-: <<'END'
+
 # get first 20 posts and total number of posts
 wget -q -4 -O - "http://api.tumblr.com/v2/blog/$tumblr_blog_name.tumblr.com/posts/$post_type?api_key=$tumblr_app_key"`
                  `"&filter=text&reblog_info=true&notes_info=true&offset=0" > $tumblr_blog_name.posts
@@ -54,7 +54,7 @@ if [ $tumblr_total_posts -gt 20 ]; then
                         `"?api_key=$tumblr_app_key\&filter=text\&reblog_info=true\&notes_info=true\&offset={1}" ::: \
                         $(seq 20 20 $tumblr_total_posts) >> $tumblr_blog_name.posts
 fi
-END
+
 
 # reblogged by
 jq --arg blog $tumblr_blog_name '.response.posts[] | try .notes[] | select(.type == "reblog") | '`
