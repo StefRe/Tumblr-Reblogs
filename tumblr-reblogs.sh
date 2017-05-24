@@ -109,8 +109,8 @@ $ a\
 SED_SCRIPT
 
 # clean up
-rm $tumblr_blog_name.reblogged_by  $tumblr_blog_name.reblogged_from
+rm $tumblr_blog_name.reblogged_by  $tumblr_blog_name.reblogged_from $tumblr_blog_name.reblog
 
-#cat $tumblr_blog_name.reblog | less
+# open result in default application
 xdg-open $tumblr_blog_name.html
 
