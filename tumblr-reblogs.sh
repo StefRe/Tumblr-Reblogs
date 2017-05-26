@@ -4,6 +4,7 @@
 
 # key taken from tumblr API
 tumblr_app_key=lLgaViMwaj2FzUMnWTODDgbSKhINLO3bPfRF5yF9J1iN4v4Eg5
+limit=50
 
 if [ -z $1 ]; then
     echo "Usage: $0 blog [type]"
@@ -16,7 +17,7 @@ tumblr_blog_name=${tumblr_blog_name##*/}
 if [[ "$2" =~ ^(text|quote|link|answer|video|audio|photo|chat)$ ]]; then
     post_type=$2
 else
-    if [ -n $2 ]; then
+    if [ -n "$2" ]; then
        echo $0: "Unknown post type $2, using photo instead"
     fi
     post_type=photo
@@ -36,9 +37,9 @@ if [ "${jq_version##*.}" -lt 5 ]; then    ## assuming major version being 1
 fi
 
 
-# get first 20 posts and total number of posts
+# get first $limit posts and total number of posts
 wget -q -4 -O - "http://api.tumblr.com/v2/blog/$tumblr_blog_name.tumblr.com/posts/$post_type?api_key=$tumblr_app_key"`
-                 `"&filter=text&reblog_info=true&notes_info=true&offset=0" > $tumblr_blog_name.$post_type.posts
+                 `"&filter=text&reblog_info=true&notes_info=true&offset=0&limit=$limit" > $tumblr_blog_name.$post_type.posts
 tumblr_total_posts=$(jq '.response | .blog | .total_posts' $tumblr_blog_name.$post_type.posts 2>/dev/null)
 tumblr_total_posts=${tumblr_total_posts:-0}
 echo $tumblr_total_posts posts total
@@ -57,10 +58,10 @@ fi
 
 
 # download remaining posts
-if [ $tumblr_total_posts -gt 20 ]; then
+if [ $tumblr_total_posts -gt $limit ]; then
     parallel --bar -j 8 "wget -q -4 -O - http://api.tumblr.com/v2/blog/$tumblr_blog_name.tumblr.com/posts/$post_type"`
-                        `"?api_key=$tumblr_app_key\&filter=text\&reblog_info=true\&notes_info=true\&offset={1}" ::: \
-                        $(seq 20 20 $tumblr_total_posts) >> $tumblr_blog_name.$post_type.posts
+                        `"?api_key=$tumblr_app_key\&filter=text\&reblog_info=true\&notes_info=true\&offset={1}\&limit=$limit" ::: \
+                        $(seq $limit $limit $tumblr_total_posts) >> $tumblr_blog_name.$post_type.posts
 fi
 
 
