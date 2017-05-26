@@ -12,10 +12,14 @@ fi
 tumblr_blog_name=${1%%.*}
 tumblr_blog_name=${tumblr_blog_name##*/}
 
-if [ -z $2 ]; then
-    post_type=photo
-else
+# set post type
+if [[ "$2" =~ ^(text|quote|link|answer|video|audio|photo|chat)$ ]]; then
     post_type=$2
+else
+    if [ -n $2 ]; then
+       echo $0: "Unknown post type $2, using photo instead"
+    fi
+    post_type=photo
 fi
 
 
