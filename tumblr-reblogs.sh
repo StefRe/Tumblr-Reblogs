@@ -96,7 +96,7 @@ echo '        reblogged from		    	                            reblogged by' >> 
 pr -w 120 -m -t <(grep -v null $tumblr_blog_name.reblogged_from) $tumblr_blog_name.reblogged_by | expand >> $tumblr_blog_name.reblog
 
 
-# convert to html
+# convert to html (no links for deactivated blogs)
 sed -f - $tumblr_blog_name.reblog > $tumblr_blog_name.html << SED_SCRIPT
 1 { i\
 <!doctype html>\
@@ -109,7 +109,8 @@ sed -f - $tumblr_blog_name.reblog > $tumblr_blog_name.html << SED_SCRIPT
 <pre>\
 <b><h2>\1</h2>\2<\/b>!
 }
-2,$ s!\([0-9]\+ \)\([^ ]\+\)!\1<a href="http://\2.tumblr.com/archive/filter-by/$post_type">\2</a>!g
+2,$ {s!\([0-9]\+ \)\([^ ]\+\)!\1<a href="http://\2.tumblr.com/archive/filter-by/$post_type">\2</a>!g;
+     s!<a [^>]*>\([^ ]\+-\(d\|de\|dea\|deac\|deact\|deacti\|deactiv\|deactiva\|deactivat\|deactivate\|deactivated\|deactivated[0-9]\{1,8\}\)\)</a>!\1!g}
 2,$ s!\(reblogged by\|reblogged from\|reblog root\)!<b>\1</b>!g
 $ a\
 </pre>\
