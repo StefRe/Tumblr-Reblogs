@@ -7,7 +7,7 @@ tumblr_app_key=lLgaViMwaj2FzUMnWTODDgbSKhINLO3bPfRF5yF9J1iN4v4Eg5
 limit=50
 
 if [ -z $1 ]; then
-    echo "Usage: $0 blog [type]"
+    echo "Usage: $0 blog [type [show as]]"
     exit
 fi
 tumblr_blog_name=${1%%.*}
@@ -21,6 +21,16 @@ else
        echo $0: "Unknown post type $2, using photo instead"
     fi
     post_type=photo
+fi
+
+# result html page type
+result_url=http://\\2.tumblr.com/archive/filter-by/$post_type
+if [ "$3" = "min-s" ]; then
+    if [ $post_type = photo ]; then
+       result_url='http://min-s.com/\2.tumblr.com'
+    else
+       echo $0: "min-s can only be used for photos, using tumblr instead"
+    fi
 fi
 
 
@@ -109,7 +119,7 @@ sed -f - $tumblr_blog_name.reblog > $tumblr_blog_name.html << SED_SCRIPT
 <pre>\
 <b><h2>\1</h2>\2<\/b>!
 }
-2,$ {s!\([0-9]\+ \)\([^ ]\+\)!\1<a href="http://\2.tumblr.com/archive/filter-by/$post_type">\2</a>!g;
+2,$ {s!\([0-9]\+ \)\([^ ]\+\)!\1<a href="$result_url">\2</a>!g;
      s!<a [^>]*>\([^ ]\+-\(d\|de\|dea\|deac\|deact\|deacti\|deactiv\|deactiva\|deactivat\|deactivate\|deactivated\|deactivated[0-9]\{1,8\}\)\)</a>!\1!g}
 2,$ s!\(reblogged by\|reblogged from\|reblog root\)!<b>\1</b>!g
 $ a\
